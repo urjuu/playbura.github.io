@@ -1,1349 +1,1201 @@
 <!doctype html>
-<html lang="en">
-
+<html lang="ka">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Set Duel — Game to 61 • Match to 11</title>
-    <style>
-        :root {
-            --bg: #0f5c3a;
-            --text: #eaf7ef;
-            --muted: #b8e2c8;
-            --gold: #fbbf24;
-            --card: #ffffff;
-            --ink: #111827;
-            --shadow: 0 10px 30px rgba(0, 0, 0, .25);
-            --radius: 18px;
-        }
-
-        * {
-            box-sizing: border-box
-        }
-
-        body {
-            margin: 0;
-            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-            background: radial-gradient(1200px 700px at 50% 30%, #167a4e 0%, var(--bg) 55%, #0a3a26 100%);
-            color: var(--text);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 16px;
-            background: rgba(0, 0, 0, .15);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(255, 255, 255, .08);
-        }
-
-        .title {
-            display: flex;
-            flex-direction: column;
-            gap: 2px
-        }
-
-        .title h1 {
-            margin: 0;
-            font-size: 16px
-        }
-
-        .title .sub {
-            font-size: 12px;
-            color: var(--muted);
-            max-width: 1100px;
-            line-height: 1.35
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap
-        }
-
-        button {
-            appearance: none;
-            border: 0;
-            cursor: pointer;
-            padding: 10px 12px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, .12);
-            color: var(--text);
-            font-weight: 800;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, .15);
-            transition: transform .08s ease, background .12s ease, opacity .12s ease;
-        }
-
-        button:hover {
-            background: rgba(255, 255, 255, .16)
-        }
-
-        button:active {
-            transform: translateY(1px)
-        }
-
-        button.primary {
-            background: rgba(251, 191, 36, .22);
-            border: 1px solid rgba(251, 191, 36, .35)
-        }
-
-        button.primary:hover {
-            background: rgba(251, 191, 36, .28)
-        }
-
-        button:disabled {
-            opacity: .5;
-            cursor: not-allowed
-        }
-
-        .pill {
-            padding: 8px 10px;
-            border-radius: 999px;
-            background: rgba(0, 0, 0, .18);
-            border: 1px solid rgba(255, 255, 255, .08);
-            font-size: 12px;
-            color: var(--muted);
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            white-space: nowrap;
-        }
-
-        .pill b {
-            color: var(--text)
-        }
-
-        main {
-            flex: 1;
-            display: flex;
-            padding: 14px;
-            gap: 14px;
-            min-height: 0;
-        }
-
-        .board {
-            flex: 1;
-            background: rgba(0, 0, 0, .14);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            position: relative;
-            overflow: hidden;
-            min-height: 0;
-        }
-
-        .side {
-            width: 380px;
-            background: rgba(0, 0, 0, .14);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            min-height: 0;
-        }
-
-        .log {
-            flex: 1;
-            background: rgba(0, 0, 0, .18);
-            border: 1px solid rgba(255, 255, 255, .06);
-            border-radius: 14px;
-            padding: 10px;
-            overflow: auto;
-            font-size: 12px;
-            color: var(--muted);
-            line-height: 1.45;
-        }
-
-        .log .line {
-            margin: 0 0 6px
-        }
-
-        .hint {
-            font-size: 12px;
-            color: var(--muted);
-            padding: 10px;
-            border-radius: 14px;
-            border: 1px dashed rgba(255, 255, 255, .18);
-            background: rgba(0, 0, 0, .12);
-            line-height: 1.35;
-        }
-
-        .table {
-            position: absolute;
-            inset: 0;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            grid-template-rows: 140px 1fr 200px;
-            gap: 12px;
-            padding: 14px;
-        }
-
-        .zone {
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, .08);
-            background: rgba(0, 0, 0, .10);
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            min-height: 0;
-        }
-
-        .zone .label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .zone .label b {
-            color: var(--text)
-        }
-
-        .handRow {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            overflow: auto;
-            padding-bottom: 2px;
-            min-height: 0;
-        }
-
-        .center {
-            grid-column: 2 / 3;
-            grid-row: 2 / 3;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            align-items: center;
-            justify-content: center;
-            border-radius: 24px;
-            background: rgba(0, 0, 0, .12);
-            border: 2px solid rgba(11, 61, 42, .6);
-            box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .05);
-            padding: 10px;
-        }
-
-        .midTop {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .deckBox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 16px;
-            background: rgba(0, 0, 0, .18);
-            border: 1px solid rgba(255, 255, 255, .08);
-        }
-
-        .deckStack {
-            width: 50px;
-            height: 70px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #1e3a8a, #0b1220);
-            border: 2px solid rgba(255, 255, 255, .18);
-            box-shadow: 0 10px 22px rgba(0, 0, 0, .35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-        }
-
-        .deckMeta {
-            font-size: 12px;
-            color: var(--muted);
-            line-height: 1.25
-        }
-
-        .trumpCardMini {
-            width: 60px;
-            height: 86px;
-            border-radius: 14px;
-            background: white;
-            color: #111827;
-            border: 2px solid rgba(17, 24, 39, .14);
-            box-shadow: 0 10px 22px rgba(0, 0, 0, .25);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 8px;
-            position: relative;
-        }
-
-        .trumpCardMini::after {
-            content: "TRUMP";
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: rgba(251, 191, 36, .95);
-            color: #1f2937;
-            font-weight: 900;
-            font-size: 10px;
-            padding: 6px 8px;
-            border-radius: 999px;
-            border: 1px solid rgba(0, 0, 0, .12);
-            box-shadow: 0 10px 22px rgba(0, 0, 0, .25);
-        }
-
-        .trumpCardMini .tTop {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 900;
-            font-size: 12px
-        }
-
-        .trumpCardMini .tMid {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            font-size: 22px;
-            font-weight: 900
-        }
-
-        .trickArea {
-            width: 100%;
-            display: flex;
-            gap: 14px;
-            justify-content: center;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            padding: 8px;
-        }
-
-        .stack {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            align-items: center;
-            min-width: 180px;
-        }
-
-        .stackTitle {
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .stackCards {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            min-height: 120px;
-            align-items: center;
-        }
-
-        .centerInfo {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        .badge {
-            padding: 8px 10px;
-            border-radius: 999px;
-            border: 1px solid rgba(255, 255, 255, .10);
-            background: rgba(0, 0, 0, .18);
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            white-space: nowrap;
-        }
-
-        .badge b {
-            color: var(--text)
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 6px;
-        }
-
-        .card {
-            width: 76px;
-            height: 110px;
-            border-radius: 14px;
-            background: var(--card);
-            color: var(--ink);
-            box-shadow: 0 8px 18px rgba(0, 0, 0, .25);
-            border: 2px solid rgba(17, 24, 39, .14);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 8px;
-            position: relative;
-            flex: 0 0 auto;
-            user-select: none;
-            transition: transform .12s ease, box-shadow .12s ease, outline .12s ease, opacity .12s ease;
-        }
-
-        .card .top {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 900;
-            font-size: 12px
-        }
-
-        .card .mid {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            flex: 1;
-            font-weight: 900;
-            font-size: 18px
-        }
-
-        .card .pts {
-            font-size: 11px;
-            opacity: .7;
-            text-align: center;
-            padding-bottom: 2px;
-            font-weight: 800;
-        }
-
-        .card.red {
-            color: #b91c1c
-        }
-
-        .card.back {
-            background: linear-gradient(135deg, #1e3a8a, #0b1220);
-            color: #fff;
-            border: 2px solid rgba(255, 255, 255, .18);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            font-weight: 900;
-        }
-
-        .card.selectable {
-            cursor: pointer
-        }
-
-        .card.selected {
-            outline: 3px solid rgba(251, 191, 36, .75);
-            transform: translateY(-3px);
-            box-shadow: 0 14px 34px rgba(251, 191, 36, .12), 0 10px 20px rgba(0, 0, 0, .25);
-        }
-
-        .card.trumpBadge::after {
-            content: "TRUMP";
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: rgba(251, 191, 36, .95);
-            color: #1f2937;
-            font-weight: 900;
-            font-size: 10px;
-            padding: 6px 8px;
-            border-radius: 999px;
-            border: 1px solid rgba(0, 0, 0, .12);
-            box-shadow: 0 10px 22px rgba(0, 0, 0, .25);
-        }
-
-        .modalBackdrop {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, .55);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-            z-index: 99;
-        }
-
-        .modal {
-            width: min(560px, 100%);
-            background: rgba(15, 33, 24, .98);
-            border: 1px solid rgba(255, 255, 255, .10);
-            border-radius: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, .45);
-            padding: 14px;
-        }
-
-        .modal h2 {
-            margin: 4px 4px 10px;
-            font-size: 16px
-        }
-
-        .modal p {
-            margin: 0 4px 12px;
-            color: var(--muted);
-            font-size: 13px;
-            line-height: 1.4
-        }
-
-        .modal .row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            padding: 6px 4px 10px
-        }
-
-        .modal .row button {
-            flex: 1 0 auto
-        }
-
-        /* ===== Mobile vertical layout fix ===== */
-        @media (max-width: 820px) {
-            header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-
-            .controls {
-                width: 100%;
-                gap: 8px;
-            }
-
-            main {
-                flex-direction: column;
-                padding: 10px;
-            }
-
-            .side {
-                width: 100%;
-                height: 260px;
-            }
-
-            .board {
-                width: 100%;
-                min-height: 640px;
-            }
-
-            .table {
-                grid-template-columns: 1fr;
-                grid-template-rows: auto auto auto;
-                gap: 10px;
-                padding: 10px;
-            }
-
-            .zone {
-                grid-column: 1 / -1 !important;
-            }
-
-            .center {
-                grid-column: 1 / -1 !important;
-                grid-row: auto !important;
-                padding: 10px;
-            }
-
-            .card {
-                width: 64px;
-                height: 96px;
-            }
-
-            .deckStack {
-                width: 44px;
-                height: 62px;
-            }
-
-            .trumpCardMini {
-                width: 56px;
-                height: 80px;
-            }
-        }
-    </style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>სეტის დუელი — 61 ქულამდე • მატჩი 11-მდე</title>
+  <style>
+    :root{
+      --bg:#0f5c3a;
+      --text:#eaf7ef;
+      --muted:#b8e2c8;
+      --gold:#fbbf24;
+      --card:#ffffff;
+      --ink:#111827;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: radial-gradient(1200px 700px at 50% 30%, #167a4e 0%, var(--bg) 55%, #0a3a26 100%);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+    header{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+      justify-content:space-between;
+      padding:14px 16px;
+      background: rgba(0,0,0,.15);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .title{display:flex; flex-direction:column; gap:2px}
+    .title h1{margin:0; font-size:16px}
+    .title .sub{font-size:12px; color:var(--muted); max-width:1100px; line-height:1.35}
+    .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    button{
+      appearance:none; border:0; cursor:pointer;
+      padding:10px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      color:var(--text);
+      font-weight:800;
+      box-shadow: 0 6px 18px rgba(0,0,0,.15);
+      transition: transform .08s ease, background .12s ease, opacity .12s ease;
+      user-select:none;
+    }
+    button:hover{background: rgba(255,255,255,.16)}
+    button:active{transform: translateY(1px)}
+    button.primary{background: rgba(251,191,36,.22); border: 1px solid rgba(251,191,36,.35)}
+    button.primary:hover{background: rgba(251,191,36,.28)}
+    button:disabled{opacity:.5; cursor:not-allowed}
+    .pill{
+      padding:8px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.08);
+      font-size:12px;
+      color:var(--muted);
+      display:flex; gap:8px; align-items:center;
+      white-space:nowrap;
+    }
+    .pill b{color:var(--text)}
+    main{
+      flex:1;
+      display:flex;
+      padding:14px;
+      gap:14px;
+      min-height:0;
+    }
+    .board{
+      flex: 1;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+      min-height:0;
+    }
+    .side{
+      width: 380px;
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }
+    .log{
+      flex:1;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px;
+      padding:10px;
+      overflow:auto;
+      font-size:12px;
+      color: var(--muted);
+      line-height:1.45;
+    }
+    .log .line{margin: 0 0 6px}
+    .hint{
+      font-size:12px;
+      color: var(--muted);
+      padding:10px;
+      border-radius:14px;
+      border:1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.12);
+      line-height:1.35;
+    }
+
+    .table{
+      position:absolute; inset:0;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: 140px 1fr 200px;
+      gap: 12px;
+      padding: 14px;
+      min-height:0;
+    }
+    .zone{
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.08);
+      background: rgba(0,0,0,.10);
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      min-height:0;
+    }
+    .zone .label{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .zone .label b{color:var(--text)}
+    .handRow{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      overflow:auto;
+      padding-bottom:2px;
+      min-height:0;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .center{
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      align-items:center;
+      justify-content:center;
+      border-radius: 24px;
+      background: rgba(0,0,0,.12);
+      border: 2px solid rgba(11,61,42,.6);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.05);
+      padding: 10px;
+      min-height:0;
+    }
+    .midTop{
+      display:flex; gap:12px; align-items:center; justify-content:center; flex-wrap:wrap;
+    }
+    .deckBox{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px;
+      border-radius:16px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .deckStack{
+      width:50px; height:70px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #1e3a8a, #0b1220);
+      border: 2px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 22px rgba(0,0,0,.35);
+      display:flex; align-items:center; justify-content:center;
+      font-weight:900;
+    }
+    .deckMeta{font-size:12px; color:var(--muted); line-height:1.25}
+    .trumpCardMini{
+      width: 60px; height: 86px;
+      border-radius: 14px;
+      background: white;
+      color:#111827;
+      border:2px solid rgba(17,24,39,.14);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      display:flex; flex-direction:column; justify-content:space-between;
+      padding:8px;
+      position:relative;
+    }
+    .trumpCardMini::after{
+      content:"TRUMP";
+      position:absolute; top:-10px; right:-10px;
+      background: rgba(251,191,36,.95);
+      color:#1f2937;
+      font-weight:900;
+      font-size:10px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+    }
+    .trumpCardMini .tTop{display:flex; justify-content:space-between; font-weight:900; font-size:12px}
+    .trumpCardMini .tMid{display:flex; align-items:center; justify-content:center; flex:1; font-size:22px; font-weight:900}
+
+    .trickArea{
+      width: 100%;
+      display:flex;
+      gap: 14px;
+      justify-content:center;
+      align-items:flex-start;
+      flex-wrap:wrap;
+      padding: 8px;
+      min-height:0;
+    }
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:center;
+      min-width: 180px;
+    }
+    .stackTitle{
+      font-size:12px;
+      color: var(--muted);
+      text-align:center;
+    }
+    .stackCards{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+      min-height: 120px;
+      align-items:center;
+    }
+    .centerInfo{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:center;
+      font-size:12px;
+      color: var(--muted);
+    }
+    .badge{
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      display:flex; gap:8px; align-items:center;
+      white-space:nowrap;
+    }
+    .badge b{color:var(--text)}
+    .actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top: 6px;
+    }
+
+    .card{
+      width: 76px;
+      height: 110px;
+      border-radius: 14px;
+      background: var(--card);
+      color: var(--ink);
+      box-shadow: 0 8px 18px rgba(0,0,0,.25);
+      border: 2px solid rgba(17,24,39,.14);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:8px;
+      position:relative;
+      flex: 0 0 auto;
+      user-select:none;
+      transition: transform .12s ease, box-shadow .12s ease, outline .12s ease, opacity .12s ease;
+    }
+    .card .top{display:flex; justify-content:space-between; font-weight:900; font-size:12px}
+    .card .mid{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; flex:1; font-weight:900; font-size:18px}
+    .card .pts{font-size:11px; opacity:.7; text-align:center; padding-bottom:2px; font-weight:800;}
+    .card.red{color:#b91c1c}
+    .card.back{
+      background: linear-gradient(135deg, #1e3a8a, #0b1220);
+      color:#fff;
+      border:2px solid rgba(255,255,255,.18);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:26px;
+      font-weight:900;
+    }
+    .card.selectable{cursor:pointer}
+    .card.selected{
+      outline: 3px solid rgba(251,191,36,.75);
+      transform: translateY(-3px);
+      box-shadow: 0 14px 34px rgba(251,191,36,.12), 0 10px 20px rgba(0,0,0,.25);
+    }
+    .card.trumpBadge::after{
+      content:"TRUMP";
+      position:absolute;
+      top:-8px; right:-8px;
+      background: rgba(251,191,36,.95);
+      color:#1f2937;
+      font-weight:900;
+      font-size:10px;
+      padding:6px 8px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.12);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+    }
+
+    .modalBackdrop{
+      position: fixed; inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 99;
+    }
+    .modal{
+      width: min(560px, 100%);
+      background: rgba(15, 33, 24, .98);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,.45);
+      padding: 14px;
+    }
+    .modal h2{margin: 4px 4px 10px; font-size: 16px}
+    .modal p{margin: 0 4px 12px; color: var(--muted); font-size: 13px; line-height: 1.4}
+    .modal .row{display:flex; gap:8px; flex-wrap:wrap; padding: 6px 4px 10px}
+    .modal .row button{flex: 1 0 auto}
+
+    /* ===== Phone: vertical + ALWAYS show Player 1 hand (sticky) ===== */
+    @media (max-width: 820px) {
+      header{flex-direction:column; align-items:flex-start; gap:10px;}
+      .controls{width:100%; gap:8px;}
+
+      main{
+        flex-direction:column;
+        padding:10px;
+        gap:10px;
+        min-height:0;
+      }
+
+      /* Put log below (short) */
+      .side{
+        width:100%;
+        height: 180px;
+        min-height: 180px;
+      }
+
+      /* Board scrolls internally */
+      .board{
+        width:100%;
+        min-height: 0 !important;
+        height: auto;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* Stack zones vertically inside board */
+      .table{
+        position: relative;
+        inset: auto;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        gap: 10px;
+        padding: 10px;
+        min-height: 0;
+      }
+
+      .zone{grid-column:1 / -1 !important;}
+      .center{
+        grid-column:1 / -1 !important;
+        grid-row:auto !important;
+        padding: 8px;
+      }
+
+      /* Make center less tall */
+      .trickArea{padding:4px;}
+      .stackCards{min-height:72px;}
+      .stack{min-width: 150px;}
+
+      /* Sticky Player 1 zone at the bottom of board */
+      .zone.p1Zone{
+        position: sticky;
+        bottom: 0;
+        z-index: 50;
+        background: rgba(0,0,0,.42);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,.16);
+        box-shadow: 0 -14px 30px rgba(0,0,0,.35);
+        padding-bottom: 12px;
+      }
+
+      /* Make cards larger on phone */
+      .card{width:72px; height:104px;}
+      .deckStack{width:44px; height:62px;}
+      .trumpCardMini{width:56px; height:80px;}
+
+      /* Ensure hand scroll works and is visible */
+      #p1Hand{
+        padding: 6px 2px;
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <header>
-        <div class="title">
-            <h1>Set Duel — Game to 61 • Match to 11</h1>
-            <div class="sub">
-                Deck is <b>36 cards</b>. After dealing 5+5, deck becomes <b>26 left</b> (36 − 10 = 26).<br />
-                Leader plays 1–5 cards of the same kind (all same suit OR all same rank). Responder plays same count
-                with any mix.
-                P2’s response is shown for 3 seconds. After each exchange, auto-deal up to 5.
-            </div>
-        </div>
-        <div class="controls">
-            <button class="primary" id="new">New Match</button>
-            <button id="reset">Reset</button>
-            <div class="pill"><span>Trump:</span> <b id="trumpPill">—</b></div>
-            <div class="pill"><span>Deck:</span> <b id="deckPill">—</b></div>
-            <div class="pill"><span>Stake:</span> <b id="stakePill">1×</b></div>
-            <div class="pill"><span>Game score:</span> <b id="gameScorePill">0–0</b></div>
-            <div class="pill"><span>Match score:</span> <b id="matchPill">0–0</b></div>
-            <div class="pill"><span>Turn:</span> <b id="turnPill">—</b></div>
-        </div>
-    </header>
-
-    <main>
-        <section class="board">
-            <div class="table">
-                <div class="zone" style="grid-column:1/4; grid-row:1/2;">
-                    <div class="label"><b>Player 2</b><span id="p2Meta"></span></div>
-                    <div class="handRow" id="p2Hand"></div>
-                </div>
-
-                <div class="center">
-                    <div class="midTop">
-                        <div class="deckBox">
-                            <div class="deckStack">★</div>
-                            <div class="deckMeta">
-                                <div><b>Deck</b></div>
-                                <div><span id="deckMetaText">—</span></div>
-                            </div>
-                        </div>
-                        <div class="trumpCardMini" id="trumpMini">
-                            <div class="tTop"><span id="trMiniRank">A</span><span id="trMiniSuit">♦</span></div>
-                            <div class="tMid" id="trMiniMid">♦</div>
-                        </div>
-                    </div>
-
-                    <div class="trickArea">
-                        <div class="stack">
-                            <div class="stackTitle">Player 2 played</div>
-                            <div class="stackCards" id="p2Play"></div>
-                        </div>
-                        <div class="stack">
-                            <div class="stackTitle">Player 1 played</div>
-                            <div class="stackCards" id="p1Play"></div>
-                        </div>
-                    </div>
-
-                    <div class="centerInfo">
-                        <div class="badge"><span>Leader</span> <b id="leaderPill">—</b></div>
-                        <div class="badge"><span>Need cards</span> <b id="needCountPill">—</b></div>
-                        <div class="badge"><span>Status</span> <b id="statusPill">Click “New Match”</b></div>
-                    </div>
-
-                    <div class="actions">
-                        <button id="playBtn" class="primary" disabled>Play selected</button>
-                        <button id="clearBtn" disabled>Clear selection</button>
-                        <button id="offerBtn" disabled>Offer 2×..5× / Whole</button>
-                    </div>
-                </div>
-
-                <div class="zone" style="grid-column:1/4; grid-row:3/4;">
-                    <div class="label"><b>Player 1 (You)</b><span id="p1Meta"></span></div>
-                    <div class="handRow" id="p1Hand"></div>
-                </div>
-            </div>
-        </section>
-
-        <aside class="side">
-            <div class="hint">
-                Deck shows <b>left / total</b> (example: <b>26 / 36</b> after first deal).<br />
-                Game target: <b>61</b> points. If <b>60–60</b> → draw. Match: first to <b>11 games</b>.
-            </div>
-            <div class="log" id="log"></div>
-        </aside>
-    </main>
-
-    <!-- Offer modal -->
-    <div class="modalBackdrop" id="offerModal">
-        <div class="modal">
-            <h2 id="offerTitle">Offer</h2>
-            <p id="offerText"></p>
-            <div class="row" id="offerButtons"></div>
-            <div class="row">
-                <button id="offerClose">Close</button>
-            </div>
-        </div>
+<header>
+  <div class="title">
+    <h1>სეტის დუელი — 61 ქულამდე • მატჩი 11-მდე</h1>
+    <div class="sub">
+      გემბანი: <b>36</b> ბარათი. 5+5 დარიგების შემდეგ რჩება <b>26</b> (36 − 10 = 26).<br/>
+      ლიდერი თამაშობს 1–5 ბარათს ერთნაირი ტიპით (ყველა ერთ მასტში ან ყველა ერთ რანკში). პასუხი თამაშობს იგივე რაოდენობას, ნებისმიერი კომბინაციით.
+      P2-ის დადებული ბარათები ჩანს <b>3 წამით</b>. ყოველი გაცვლის შემდეგ ავტომატურად ივსება ხელები 5-მდე (თუ გემბანში არის).
     </div>
-
-    <script>
-        /* ---------------- Rules ---------------- */
-        const TOTAL_DECK = 36;
-        const RANKS = ["6", "7", "8", "9", "Jack", "Queen", "King", "10", "Ace"]; // 9 ranks
-        const SUITS = ["Hearts", "Diamonds", "Clubs", "Spades"];
-        const SUIT_SYMBOL = { Hearts: "♥", Diamonds: "♦", Clubs: "♣", Spades: "♠" };
-        const POINTS = { Ace: 11, "10": 10, King: 4, Queen: 3, Jack: 2, "9": 0, "8": 0, "7": 0, "6": 0 };
-        const STRENGTH = { Ace: 8, "10": 7, King: 6, Queen: 5, Jack: 4, "9": 3, "8": 2, "7": 1, "6": 0 };
-        const GAME_TARGET = 61;
-
-        const RAISES = [2, 3, 4, 5, "WHOLE"];
-        const $ = (id) => document.getElementById(id);
-        const isRed = (s) => s === "Hearts" || s === "Diamonds";
-        function raiseLabel(x) { return x === "WHOLE" ? "WHOLE GAME" : `${x}×`; }
-        function stakeText(level) { return level === "WHOLE" ? "WHOLE" : `${level}×`; }
-
-        function logLine(t) {
-            const d = document.createElement("div");
-            d.className = "line";
-            d.textContent = t;
-            $("log").prepend(d);
-        }
-        function shuffle(a) {
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
-        function buildDeck() {
-            const d = [];
-            for (const s of SUITS) for (const r of RANKS) d.push({ r, s });
-            return shuffle(d); // 36 cards
-        }
-        function sortHand(hand, trump) {
-            const suitOrder = { Hearts: 0, Diamonds: 1, Clubs: 2, Spades: 3 };
-            hand.sort((a, b) => {
-                const ta = a.s === trump ? 1 : 0;
-                const tb = b.s === trump ? 1 : 0;
-                if (ta !== tb) return tb - ta; // trump first
-                const ds = suitOrder[a.s] - suitOrder[b.s];
-                if (ds !== 0) return ds;
-                return STRENGTH[b.r] - STRENGTH[a.r];
-            });
-            return hand;
-        }
-
-        function cardEl(card, { faceUp = true, selectable = false, selected = false, trump = null, onClick = null } = {}) {
-            const d = document.createElement("div");
-            d.className = "card";
-            if (!faceUp) {
-                d.classList.add("back");
-                d.textContent = "★";
-                return d;
-            }
-            if (isRed(card.s)) d.classList.add("red");
-            if (trump && card.s === trump) d.classList.add("trumpBadge");
-            if (selectable) d.classList.add("selectable");
-            if (selected) d.classList.add("selected");
-
-            const top = document.createElement("div");
-            top.className = "top";
-            top.innerHTML = `<span>${card.r}</span><span>${SUIT_SYMBOL[card.s]}</span>`;
-            const mid = document.createElement("div");
-            mid.className = "mid";
-            mid.innerHTML = `<div style="font-size:22px">${SUIT_SYMBOL[card.s]}</div><div>${card.r}</div>`;
-            const pts = document.createElement("div");
-            pts.className = "pts";
-            pts.textContent = `${POINTS[card.r]} pts`;
-            d.append(top, mid, pts);
-
-            if (selectable && onClick) d.addEventListener("click", onClick);
-            return d;
-        }
-
-        /* ---------------- State ---------------- */
-        const state = {
-            matchWins: [0, 0],    // first to 11 games won
-            gamePoints: [0, 0],   // points within current game
-            stake: 1,
-            trump: null,
-            deck: [],
-            hands: [[], []],      // up to 5 each
-            leader: 0,
-            turn: 0,
-            phase: "idle",       // idle | playing | revealPause | resolve | gameover
-            needCount: 0,
-            plays: [[], []],
-            selectedIdxs: new Set(),
-            pendingOffer: null,
-            nextRaisePlayer: null,
-            lockInput: false
-        };
-
-        function resetExchange() {
-            state.needCount = 0;
-            state.plays = [[], []];
-            state.selectedIdxs.clear();
-        }
-
-        /* ---------------- Validation ---------------- */
-        function classifySameKind(cards) {
-            if (cards.length === 0) return null;
-            const allRank = cards.every(c => c.r === cards[0].r);
-            const allSuit = cards.every(c => c.s === cards[0].s);
-            if (allRank) return { type: "rank", value: cards[0].r };
-            if (allSuit) return { type: "suit", value: cards[0].s };
-            return null;
-        }
-
-        /* ---------------- Exchange winner ---------------- */
-        function bestCardInSet(set) {
-            return set.reduce((best, c) => {
-                const tb = best.s === state.trump ? 1 : 0;
-                const tc = c.s === state.trump ? 1 : 0;
-                if (tc !== tb) return tc > tb ? c : best;
-                if (STRENGTH[c.r] !== STRENGTH[best.r]) return STRENGTH[c.r] > STRENGTH[best.r] ? c : best;
-                return best;
-            }, set[0]);
-        }
-        function exchangeWinner() {
-            const s1 = state.plays[0], s2 = state.plays[1];
-            const b1 = bestCardInSet(s1);
-            const b2 = bestCardInSet(s2);
-
-            const t1 = b1.s === state.trump ? 1 : 0;
-            const t2 = b2.s === state.trump ? 1 : 0;
-            if (t1 !== t2) return t1 > t2 ? 0 : 1;
-
-            if (STRENGTH[b1.r] !== STRENGTH[b2.r]) return STRENGTH[b1.r] > STRENGTH[b2.r] ? 0 : 1;
-            return state.leader;
-        }
-        function pointsOfSet(set) {
-            return set.reduce((s, c) => s + (POINTS[c.r] ?? 0), 0);
-        }
-
-        /* ---------------- Dealing ---------------- */
-        function dealUpToFive(winner) {
-            const order = winner === 0 ? [0, 1] : [1, 0]; // winner draws first
-            for (const p of order) {
-                while (state.hands[p].length < 5 && state.deck.length > 0) {
-                    state.hands[p].push(state.deck.pop());
-                }
-            }
-            sortHand(state.hands[0], state.trump);
-            sortHand(state.hands[1], state.trump);
-        }
-
-        /* ---------------- Rendering ---------------- */
-        function updateTopPills() {
-            $("trumpPill").textContent = state.trump ? `${state.trump} ${SUIT_SYMBOL[state.trump]}` : "—";
-
-            // show left / total (this fixes your confusion)
-            const deckText = state.phase === "idle" ? "—" : `${state.deck.length} / ${TOTAL_DECK}`;
-            $("deckPill").textContent = deckText;
-            $("deckMetaText").textContent = state.phase === "idle" ? "—" : `${state.deck.length} left (of ${TOTAL_DECK})`;
-
-            $("stakePill").textContent = stakeText(state.stake);
-            $("gameScorePill").textContent = `${state.gamePoints[0]}–${state.gamePoints[1]}`;
-            $("matchPill").textContent = `${state.matchWins[0]}–${state.matchWins[1]}`;
-            $("turnPill").textContent = (state.phase === "playing" || state.phase === "revealPause") ? `Player ${state.turn + 1}` : "—";
-            $("leaderPill").textContent = (state.phase === "playing" || state.phase === "revealPause") ? `Player ${state.leader + 1}` : "—";
-            $("needCountPill").textContent = state.needCount === 0 ? "—" : `${state.needCount}`;
-
-            // Trump mini
-            if (state.trump) {
-                const sym = SUIT_SYMBOL[state.trump];
-                $("trMiniRank").textContent = "A";
-                $("trMiniSuit").textContent = sym;
-                $("trMiniMid").textContent = sym;
-                $("trumpMini").style.opacity = "1";
-            } else {
-                $("trumpMini").style.opacity = ".3";
-            }
-        }
-
-        function renderHands() {
-            // P2 hidden hand
-            $("p2Hand").innerHTML = "";
-            for (let i = 0; i < state.hands[1].length; i++) {
-                $("p2Hand").append(cardEl({ r: "", s: "Spades" }, { faceUp: false }));
-            }
-
-            // P1 visible
-            $("p1Hand").innerHTML = "";
-            state.hands[0].forEach((c, idx) => {
-                const selected = state.selectedIdxs.has(idx);
-                const selectable = (state.phase === "playing" && state.turn === 0 && !state.lockInput && !state.pendingOffer);
-                $("p1Hand").append(cardEl(c, {
-                    faceUp: true,
-                    selectable,
-                    selected,
-                    trump: state.trump,
-                    onClick: () => toggleSelect(idx)
-                }));
-            });
-
-            $("p1Meta").textContent = `Cards: ${state.hands[0].length}`;
-            $("p2Meta").textContent = `Cards: ${state.hands[1].length}`;
-        }
-
-        function renderPlays() {
-            $("p1Play").innerHTML = "";
-            $("p2Play").innerHTML = "";
-            for (const c of state.plays[0]) $("p1Play").append(cardEl(c, { faceUp: true, trump: state.trump }));
-            for (const c of state.plays[1]) $("p2Play").append(cardEl(c, { faceUp: true, trump: state.trump }));
-        }
-
-        function renderControls() {
-            const humanTurn = (state.phase === "playing" && state.turn === 0 && !state.lockInput && !state.pendingOffer);
-            $("playBtn").disabled = !humanTurn;
-            $("clearBtn").disabled = !humanTurn;
-
-            let offerEnabled = (state.phase === "playing" && state.turn === 0 && !state.lockInput && !state.pendingOffer);
-            if (state.nextRaisePlayer !== null && state.nextRaisePlayer !== 0) offerEnabled = false;
-            $("offerBtn").disabled = !offerEnabled;
-        }
-
-        function render() {
-            updateTopPills();
-            renderHands();
-            renderPlays();
-            renderControls();
-        }
-
-        /* ---------------- Selection ---------------- */
-        function toggleSelect(idx) {
-            if (!(state.phase === "playing" && state.turn === 0) || state.lockInput || state.pendingOffer) return;
-            if (state.selectedIdxs.has(idx)) state.selectedIdxs.delete(idx);
-            else state.selectedIdxs.add(idx);
-            if (state.selectedIdxs.size > 5) state.selectedIdxs.delete(idx);
-            render();
-        }
-        function clearSelection() {
-            state.selectedIdxs.clear();
-            render();
-        }
-
-        function applyPlay(player, idxs) {
-            idxs.sort((a, b) => b - a).forEach(i => state.hands[player].splice(i, 1));
-            sortHand(state.hands[player], state.trump);
-        }
-
-        /* ---------------- Human play ---------------- */
-        function humanPlaySelected() {
-            if (!(state.phase === "playing" && state.turn === 0) || state.lockInput || state.pendingOffer) return;
-
-            const idxs = [...state.selectedIdxs].sort((a, b) => a - b);
-            if (idxs.length === 0) return;
-
-            const cards = idxs.map(i => state.hands[0][i]);
-
-            if (state.needCount === 0) {
-                const cls = classifySameKind(cards);
-                if (!cls) {
-                    logLine("Invalid: leader must play SAME KIND (all same suit OR all same rank).");
-                    return;
-                }
-                state.needCount = cards.length;
-                state.leader = 0;
-            } else {
-                if (cards.length !== state.needCount) {
-                    logLine(`You must play exactly ${state.needCount} cards.`);
-                    return;
-                }
-            }
-
-            state.plays[0] = cards;
-            applyPlay(0, idxs);
-            state.selectedIdxs.clear();
-            logLine(`P1 played ${cards.length} card(s).`);
-
-            nextTurn();
-        }
-
-        /* ---------------- AI play ---------------- */
-        function aiLeaderMove() {
-            const hand = state.hands[1];
-            const bySuit = new Map();
-            const byRank = new Map();
-            hand.forEach((c, idx) => {
-                if (!bySuit.has(c.s)) bySuit.set(c.s, []);
-                bySuit.get(c.s).push(idx);
-                if (!byRank.has(c.r)) byRank.set(c.r, []);
-                byRank.get(c.r).push(idx);
-            });
-
-            const candidates = [];
-            for (const [s, arr] of bySuit.entries()) {
-                for (let k = Math.min(5, arr.length); k >= 1; k--) {
-                    candidates.push({ idxs: arr.slice(0, k), score: (s === state.trump ? 100 : 0) + k * 10 });
-                }
-            }
-            for (const [r, arr] of byRank.entries()) {
-                for (let k = Math.min(5, arr.length); k >= 2; k--) {
-                    candidates.push({ idxs: arr.slice(0, k), score: k * 9 });
-                }
-            }
-            if (candidates.length === 0) candidates.push({ idxs: [0], score: 1 });
-            candidates.sort((a, b) => b.score - a.score);
-            return candidates[0].idxs;
-        }
-        function aiResponderMove() {
-            const hand = state.hands[1];
-            const need = state.needCount;
-            const idxs = hand.map((_, i) => i);
-
-            idxs.sort((i, j) => {
-                const a = hand[i], b = hand[j];
-                const ta = a.s === state.trump ? 1 : 0;
-                const tb = b.s === state.trump ? 1 : 0;
-                if (ta !== tb) return ta - tb;      // non-trump first
-                return STRENGTH[a.r] - STRENGTH[b.r]; // low first
-            });
-
-            return idxs.slice(0, Math.min(need, idxs.length));
-        }
-
-        function aiPlay() {
-            if (!(state.phase === "playing" && state.turn === 1) || state.lockInput || state.pendingOffer) return;
-
-            maybeAiRaise();
-
-            let idxs;
-            if (state.needCount === 0) {
-                idxs = aiLeaderMove();
-                state.needCount = idxs.length;
-                state.leader = 1;
-            } else {
-                idxs = aiResponderMove();
-                if (idxs.length !== state.needCount) {
-                    idxs = state.hands[1].map((_, i) => i).slice(0, state.needCount);
-                }
-            }
-
-            const cards = idxs.map(i => state.hands[1][i]);
-            state.plays[1] = cards;
-            applyPlay(1, idxs);
-
-            logLine(`P2 played ${cards.length} card(s). Showing for 3 seconds…`);
-
-            state.lockInput = true;
-            state.phase = "revealPause";
-            render();
-
-            setTimeout(() => {
-                state.lockInput = false;
-                state.phase = "playing";
-                nextTurn(true);
-            }, 3000);
-        }
-
-        /* ---------------- Flow ---------------- */
-        function nextTurn() {
-            if (state.plays[0].length && state.plays[1].length) {
-                resolveExchange();
-                return;
-            }
-            state.turn = 1 - state.turn;
-            $("statusPill").textContent = state.turn === 0 ? "Your turn" : "P2 thinking…";
-            render();
-
-            if (state.turn === 1) {
-                setTimeout(aiPlay, 500);
-            }
-        }
-
-        function resolveExchange() {
-            const winner = exchangeWinner();
-            const totalPts = pointsOfSet(state.plays[0]) + pointsOfSet(state.plays[1]);
-            state.gamePoints[winner] += totalPts;
-
-            logLine(`Exchange winner: Player ${winner + 1} (+${totalPts}). Game: ${state.gamePoints[0]}–${state.gamePoints[1]}`);
-
-            state.leader = winner;
-            state.turn = winner;
-
-            resetExchange();
-            dealUpToFive(winner);
-
-            render();
-
-            if (checkGameEnd()) return;
-
-            $("statusPill").textContent = `Next exchange. Leader: Player ${state.leader + 1}`;
-            render();
-
-            if (state.turn === 1) {
-                setTimeout(aiPlay, 500);
-            }
-        }
-
-        function checkGameEnd() {
-            const p1 = state.gamePoints[0], p2 = state.gamePoints[1];
-
-            if (p1 === 60 && p2 === 60) {
-                logLine("GAME DRAW — 60–60. No match win awarded.");
-                endGameDraw();
-                return true;
-            }
-
-            if (p1 >= GAME_TARGET || p2 >= GAME_TARGET) {
-                if (p1 === p2) {
-                    logLine("GAME DRAW — tie at 61+ (rare). No match win awarded.");
-                    endGameDraw();
-                    return true;
-                }
-                const winner = (p1 > p2) ? 0 : 1;
-                endGameWin(winner, "Reached 61+");
-                return true;
-            }
-
-            // If deck empty and both hands empty, decide by higher score (or draw)
-            if (state.deck.length === 0 && state.hands[0].length === 0 && state.hands[1].length === 0) {
-                if (p1 === p2) {
-                    logLine("GAME DRAW — deck finished and scores tied.");
-                    endGameDraw();
-                    return true;
-                }
-                const winner = (p1 > p2) ? 0 : 1;
-                endGameWin(winner, "Deck finished");
-                return true;
-            }
-
-            return false;
-        }
-
-        function endGameDraw() {
-            state.phase = "resolve";
-            $("statusPill").textContent = "Game ended: DRAW (60–60)";
-            render();
-            setTimeout(startNewGame, 900);
-        }
-
-        function endGameWin(winner, reason) {
-            state.phase = "resolve";
-            logLine(`GAME OVER — Player ${winner + 1} wins (${reason}). Stake: ${stakeText(state.stake)}.`);
-
-            // stake affects MATCH WINS
-            if (state.stake === "WHOLE") {
-                state.matchWins[winner] = 11;
-            } else {
-                state.matchWins[winner] += state.stake; // 1..5 games
-            }
-            state.matchWins[winner] = Math.min(11, state.matchWins[winner]);
-
-            $("statusPill").textContent = `Game over — Player ${winner + 1} wins`;
-            render();
-
-            if (state.matchWins[winner] >= 11) {
-                state.phase = "gameover";
-                $("statusPill").textContent = `MATCH OVER — Player ${winner + 1} wins ${state.matchWins[0]}–${state.matchWins[1]}`;
-                render();
-                alert(`MATCH OVER\nPlayer ${winner + 1} wins!\nFinal: ${state.matchWins[0]}–${state.matchWins[1]}`);
-                return;
-            }
-
-            setTimeout(startNewGame, 900);
-        }
-
-        /* ---------------- Start new GAME ---------------- */
-        function startNewGame() {
-            state.gamePoints = [0, 0];
-            state.stake = 1;
-            state.pendingOffer = null;
-            state.nextRaisePlayer = null;
-            state.lockInput = false;
-
-            state.trump = SUITS[Math.floor(Math.random() * SUITS.length)];
-            state.deck = buildDeck(); // 36 cards
-            state.hands = [[], []];
-
-            // deal 5 each (36 - 10 = 26 left)
-            for (let i = 0; i < 5; i++) {
-                state.hands[0].push(state.deck.pop());
-                state.hands[1].push(state.deck.pop());
-            }
-            sortHand(state.hands[0], state.trump);
-            sortHand(state.hands[1], state.trump);
-
-            resetExchange();
-            state.leader = 0;
-            state.turn = 0;
-            state.phase = "playing";
-
-            $("statusPill").textContent = "New game started — your turn";
-            logLine(`— New GAME. Trump: ${state.trump} ${SUIT_SYMBOL[state.trump]}. Deck left: ${state.deck.length} (should be 26).`);
-            render();
-        }
-
-        /* ---------------- Betting / offers ---------------- */
-        function openOfferModal() {
-            if (!(state.phase === "playing" && state.turn === 0) || state.lockInput || state.pendingOffer) return;
-            if (state.nextRaisePlayer !== null && state.nextRaisePlayer !== 0) {
-                logLine("You cannot raise now. Only Player 2 can raise next.");
-                return;
-            }
-
-            const current = state.stake;
-            const options = RAISES.filter(x => {
-                if (current === "WHOLE") return false;
-                if (x === "WHOLE") return true;
-                return x > current;
-            });
-            if (!options.length) {
-                logLine("No higher offer available.");
-                return;
-            }
-            showOfferUI({ mode: "make", options });
-        }
-
-        function showOfferUI({ mode, options, incomingLevel }) {
-            $("offerModal").style.display = "flex";
-            $("offerButtons").innerHTML = "";
-
-            if (mode === "make") {
-                $("offerTitle").textContent = "Make an offer";
-                $("offerText").textContent = "Choose a stake. If P2 refuses, you instantly win the GAME.";
-                for (const opt of options) {
-                    const b = document.createElement("button");
-                    b.className = "primary";
-                    b.textContent = raiseLabel(opt);
-                    b.onclick = () => {
-                        $("offerModal").style.display = "none";
-                        makeOffer(0, 1, opt);
-                    };
-                    $("offerButtons").append(b);
-                }
-            } else {
-                $("offerTitle").textContent = `Offer received: ${raiseLabel(incomingLevel)}`;
-                $("offerText").textContent = "Accept to continue. Refuse = you lose GAME instantly.";
-                const accept = document.createElement("button");
-                accept.className = "primary";
-                accept.textContent = "Accept";
-                accept.onclick = () => {
-                    $("offerModal").style.display = "none";
-                    acceptOffer();
-                };
-                const refuse = document.createElement("button");
-                refuse.textContent = "Refuse";
-                refuse.onclick = () => {
-                    $("offerModal").style.display = "none";
-                    refuseOffer();
-                };
-                $("offerButtons").append(accept, refuse);
-            }
-        }
-
-        function makeOffer(from, to, level) {
-            state.pendingOffer = { from, to, level };
-            logLine(`Player ${from + 1} offers ${raiseLabel(level)}.`);
-
-            // Only opponent can raise next
-            state.nextRaisePlayer = to;
-            render();
-
-            setTimeout(() => aiRespondToOffer(level), 450);
-        }
-
-        function acceptOffer() {
-            if (!state.pendingOffer) return;
-            state.stake = state.pendingOffer.level;
-            logLine(`Offer accepted. New stake: ${stakeText(state.stake)}.`);
-            state.pendingOffer = null;
-            render();
-        }
-
-        function refuseOffer() {
-            if (!state.pendingOffer) return;
-            const offerer = state.pendingOffer.from;
-            logLine(`Offer refused. Player ${offerer + 1} wins GAME instantly.`);
-            state.pendingOffer = null;
-            endGameWin(offerer, "Opponent refused offer");
-        }
-
-        function aiRespondToOffer(level) {
-            if (!state.pendingOffer) return;
-
-            const hand = state.hands[1];
-            const trumpCount = hand.filter(c => c.s === state.trump).length;
-            const highCount = hand.filter(c => ["Ace", "10", "King", "Queen", "Jack"].includes(c.r)).length;
-
-            let acceptChance = 0.70;
-            if (level === 2) acceptChance = 0.82;
-            if (level === 3) acceptChance = 0.68;
-            if (level === 4) acceptChance = 0.54;
-            if (level === 5) acceptChance = 0.42;
-            if (level === "WHOLE") {
-                acceptChance = (trumpCount >= 3 || (trumpCount >= 2 && highCount >= 3)) ? 0.55 : 0.12;
-            }
-
-            if (Math.random() < acceptChance) {
-                state.stake = level;
-                logLine(`Player 2 ACCEPTS ${raiseLabel(level)}.`);
-                state.pendingOffer = null;
-                render();
-                return;
-            }
-
-            logLine(`Player 2 REFUSES ${raiseLabel(level)}. Player 1 wins instantly.`);
-            state.pendingOffer = null;
-            endGameWin(0, "Opponent refused offer");
-        }
-
-        function maybeAiRaise() {
-            if (state.pendingOffer) return;
-            if (state.nextRaisePlayer !== 1) return;
-            if (!(state.phase === "playing" && state.turn === 1)) return;
-
-            const current = state.stake;
-            const options = RAISES.filter(x => {
-                if (current === "WHOLE") return false;
-                if (x === "WHOLE") return true;
-                return x > current;
-            });
-            if (!options.length) return;
-
-            const hand = state.hands[1];
-            const trumpCount = hand.filter(c => c.s === state.trump).length;
-            const behind = state.matchWins[1] < state.matchWins[0];
-
-            let desire = 0.08 + (behind ? 0.10 : 0) + (trumpCount >= 3 ? 0.12 : 0);
-            if (Math.random() > desire) return;
-
-            const pick = options[0];
-            state.pendingOffer = { from: 1, to: 0, level: pick };
-            state.nextRaisePlayer = 0;
-            logLine(`Player 2 offers ${raiseLabel(pick)}.`);
-            render();
-            showOfferUI({ mode: "respond", incomingLevel: pick });
-        }
-
-        /* ---------------- Buttons ---------------- */
-        $("new").addEventListener("click", () => {
-            state.matchWins = [0, 0];
-            $("log").innerHTML = "";
-            logLine("New MATCH started. First to 11 games won.");
-            startNewGame();
-        });
-
-        $("reset").addEventListener("click", () => {
-            Object.assign(state, {
-                matchWins: [0, 0],
-                gamePoints: [0, 0],
-                stake: 1,
-                trump: null,
-                deck: [],
-                hands: [[], []],
-                leader: 0,
-                turn: 0,
-                phase: "idle",
-                needCount: 0,
-                plays: [[], []],
-                selectedIdxs: new Set(),
-                pendingOffer: null,
-                nextRaisePlayer: null,
-                lockInput: false
-            });
-            $("log").innerHTML = "";
-            $("statusPill").textContent = "Click “New Match”";
-            render();
-        });
-
-        $("playBtn").addEventListener("click", humanPlaySelected);
-        $("clearBtn").addEventListener("click", clearSelection);
-        $("offerBtn").addEventListener("click", openOfferModal);
-
-        $("offerClose").addEventListener("click", () => {
-            $("offerModal").style.display = "none";
-        });
-
-        /* ---------------- Init ---------------- */
-        render();
-    </script>
+  </div>
+  <div class="controls">
+    <button class="primary" id="new">ახალი მატჩი</button>
+    <button id="reset">გადატვირთვა</button>
+    <div class="pill"><span>კოზირი:</span> <b id="trumpPill">—</b></div>
+    <div class="pill"><span>გემბანი:</span> <b id="deckPill">—</b></div>
+    <div class="pill"><span>საფასური:</span> <b id="stakePill">1×</b></div>
+    <div class="pill"><span>თამაშის ქულა:</span> <b id="gameScorePill">0–0</b></div>
+    <div class="pill"><span>მატჩის ანგარიში:</span> <b id="matchPill">0–0</b></div>
+    <div class="pill"><span>სვლა:</span> <b id="turnPill">—</b></div>
+  </div>
+</header>
+
+<main>
+  <section class="board">
+    <div class="table">
+      <div class="zone" style="grid-column:1/4; grid-row:1/2;">
+        <div class="label"><b>მოთამაშე 2</b><span id="p2Meta"></span></div>
+        <div class="handRow" id="p2Hand"></div>
+      </div>
+
+      <div class="center">
+        <div class="midTop">
+          <div class="deckBox">
+            <div class="deckStack">★</div>
+            <div class="deckMeta">
+              <div><b>გემბანი</b></div>
+              <div><span id="deckMetaText">—</span></div>
+            </div>
+          </div>
+          <div class="trumpCardMini" id="trumpMini" aria-label="კოზირი">
+            <div class="tTop"><span id="trMiniRank">A</span><span id="trMiniSuit">♦</span></div>
+            <div class="tMid" id="trMiniMid">♦</div>
+          </div>
+        </div>
+
+        <div class="trickArea">
+          <div class="stack">
+            <div class="stackTitle">მოთამაშე 2 დადო</div>
+            <div class="stackCards" id="p2Play"></div>
+          </div>
+          <div class="stack">
+            <div class="stackTitle">მოთამაშე 1 დადო</div>
+            <div class="stackCards" id="p1Play"></div>
+          </div>
+        </div>
+
+        <div class="centerInfo">
+          <div class="badge"><span>ლიდერი</span> <b id="leaderPill">—</b></div>
+          <div class="badge"><span>საჭიროა ბარათი</span> <b id="needCountPill">—</b></div>
+          <div class="badge"><span>სტატუსი</span> <b id="statusPill">დააჭირე “ახალი მატჩი”</b></div>
+        </div>
+
+        <div class="actions">
+          <button id="playBtn" class="primary" disabled>მონიშნულის დადება</button>
+          <button id="clearBtn" disabled>მონიშვნის მოხსნა</button>
+          <button id="offerBtn" disabled>შეთავაზება 2×..5× / მთელი</button>
+        </div>
+      </div>
+
+      <div class="zone p1Zone" style="grid-column:1/4; grid-row:3/4;">
+        <div class="label"><b>მოთამაშე 1 (შენ)</b><span id="p1Meta"></span></div>
+        <div class="handRow" id="p1Hand"></div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="hint">
+      ✅ გემბანი ჩანს როგორც <b>დარჩენილი / სულ</b> (მაგ: <b>26 / 36</b> პირველ დარიგებაზე).<br/>
+      ✅ თამაშის მიზანი: <b>61 ქულა</b>. თუ <b>60–60</b> → ფრე.<br/>
+      ✅ მატჩი: ვინც პირველი მოიგებს <b>11 თამაშს</b>.
+    </div>
+    <div class="log" id="log"></div>
+  </aside>
+</main>
+
+<!-- Offer modal -->
+<div class="modalBackdrop" id="offerModal">
+  <div class="modal">
+    <h2 id="offerTitle">შეთავაზება</h2>
+    <p id="offerText"></p>
+    <div class="row" id="offerButtons"></div>
+    <div class="row">
+      <button id="offerClose">დახურვა</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== წესები ===== */
+const TOTAL_DECK = 36;
+const RANKS = ["6","7","8","9","Jack","Queen","King","10","Ace"]; // 9 × 4 = 36
+const SUITS = ["Hearts","Diamonds","Clubs","Spades"];
+const SUIT_SYMBOL = {Hearts:"♥", Diamonds:"♦", Clubs:"♣", Spades:"♠"};
+const POINTS = {Ace:11, "10":10, King:4, Queen:3, Jack:2, "9":0, "8":0, "7":0, "6":0};
+const STRENGTH = {Ace:8, "10":7, King:6, Queen:5, Jack:4, "9":3, "8":2, "7":1, "6":0};
+const GAME_TARGET = 61;
+
+const RAISES = [2,3,4,5,"WHOLE"];
+const $ = (id)=>document.getElementById(id);
+const isRed = (s)=> s==="Hearts"||s==="Diamonds";
+
+function raiseLabel(x){ return x==="WHOLE" ? "მთელი თამაში" : `${x}×`; }
+function stakeText(level){ return level==="WHOLE" ? "მთელი" : `${level}×`; }
+
+function logLine(t){
+  const d=document.createElement("div");
+  d.className="line";
+  d.textContent=t;
+  $("log").prepend(d);
+}
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function buildDeck(){
+  const d=[];
+  for(const s of SUITS) for(const r of RANKS) d.push({r,s});
+  return shuffle(d); // 36
+}
+
+function sortHand(hand, trump){
+  const suitOrder={Hearts:0, Diamonds:1, Clubs:2, Spades:3};
+  hand.sort((a,b)=>{
+    const ta = a.s===trump ? 1 : 0;
+    const tb = b.s===trump ? 1 : 0;
+    if(ta!==tb) return tb-ta; // trump first
+    const ds=suitOrder[a.s]-suitOrder[b.s];
+    if(ds!==0) return ds;
+    return STRENGTH[b.r]-STRENGTH[a.r];
+  });
+  return hand;
+}
+
+function cardEl(card, {faceUp=true, selectable=false, selected=false, trump=null, onClick=null}={}){
+  const d=document.createElement("div");
+  d.className="card";
+
+  if(!faceUp){
+    d.classList.add("back");
+    d.textContent="★";
+    return d;
+  }
+
+  if(isRed(card.s)) d.classList.add("red");
+  if(trump && card.s===trump) d.classList.add("trumpBadge");
+  if(selectable) d.classList.add("selectable");
+  if(selected) d.classList.add("selected");
+
+  const top=document.createElement("div");
+  top.className="top";
+  top.innerHTML=`<span>${card.r}</span><span>${SUIT_SYMBOL[card.s]}</span>`;
+
+  const mid=document.createElement("div");
+  mid.className="mid";
+  mid.innerHTML=`<div style="font-size:22px">${SUIT_SYMBOL[card.s]}</div><div>${card.r}</div>`;
+
+  const pts=document.createElement("div");
+  pts.className="pts";
+  pts.textContent=`${POINTS[card.r]} ქულა`;
+
+  d.append(top,mid,pts);
+
+  if(selectable && onClick) d.addEventListener("click", onClick);
+  return d;
+}
+
+/* ===== მდგომარეობა ===== */
+const state = {
+  matchWins: [0,0],    // 11 თამაშამდე
+  gamePoints: [0,0],   // 61 ქულამდე
+  stake: 1,
+  trump: null,
+  deck: [],
+  hands: [[],[]],      // 5-მდე
+  leader: 0,
+  turn: 0,
+  phase: "idle",       // idle | playing | revealPause | resolve | gameover
+  needCount: 0,
+  plays: [[],[]],
+  selectedIdxs: new Set(),
+  pendingOffer: null,
+  nextRaisePlayer: null,
+  lockInput: false
+};
+
+function resetExchange(){
+  state.needCount = 0;
+  state.plays = [[],[]];
+  state.selectedIdxs.clear();
+}
+
+/* ===== ლიდერის ვალიდაცია: ერთი ტიპი ===== */
+function classifySameKind(cards){
+  if(cards.length===0) return null;
+  const allRank = cards.every(c=>c.r===cards[0].r);
+  const allSuit = cards.every(c=>c.s===cards[0].s);
+  if(allRank) return {type:"rank", value:cards[0].r};
+  if(allSuit) return {type:"suit", value:cards[0].s};
+  return null;
+}
+
+/* ===== გაცვლის გამარჯვებული ===== */
+function bestCardInSet(set){
+  return set.reduce((best,c)=>{
+    const tb = best.s===state.trump ? 1 : 0;
+    const tc = c.s===state.trump ? 1 : 0;
+    if(tc!==tb) return tc>tb ? c : best;
+    if(STRENGTH[c.r]!==STRENGTH[best.r]) return STRENGTH[c.r] > STRENGTH[best.r] ? c : best;
+    return best;
+  }, set[0]);
+}
+function exchangeWinner(){
+  const s1=state.plays[0], s2=state.plays[1];
+  const b1=bestCardInSet(s1);
+  const b2=bestCardInSet(s2);
+
+  const t1 = b1.s===state.trump ? 1 : 0;
+  const t2 = b2.s===state.trump ? 1 : 0;
+  if(t1!==t2) return t1>t2 ? 0 : 1;
+
+  if(STRENGTH[b1.r]!==STRENGTH[b2.r]) return STRENGTH[b1.r] > STRENGTH[b2.r] ? 0 : 1;
+  return state.leader;
+}
+function pointsOfSet(set){
+  return set.reduce((s,c)=>s + (POINTS[c.r] ?? 0), 0);
+}
+
+/* ===== დარიგება 5-მდე ===== */
+function dealUpToFive(winner){
+  const order = winner===0 ? [0,1] : [1,0]; // გამარჯვებული იღებს პირველი
+  for(const p of order){
+    while(state.hands[p].length < 5 && state.deck.length > 0){
+      state.hands[p].push(state.deck.pop());
+    }
+  }
+  sortHand(state.hands[0], state.trump);
+  sortHand(state.hands[1], state.trump);
+}
+
+/* ===== რენდერი ===== */
+function updateTopPills(){
+  $("trumpPill").textContent = state.trump ? `${state.trump} ${SUIT_SYMBOL[state.trump]}` : "—";
+
+  const deckText = state.phase==="idle" ? "—" : `${state.deck.length} / ${TOTAL_DECK}`;
+  $("deckPill").textContent = deckText;
+  $("deckMetaText").textContent = state.phase==="idle" ? "—" : `${state.deck.length} დარჩა (სულ ${TOTAL_DECK}-დან)`;
+
+  $("stakePill").textContent = stakeText(state.stake);
+  $("gameScorePill").textContent = `${state.gamePoints[0]}–${state.gamePoints[1]}`;
+  $("matchPill").textContent = `${state.matchWins[0]}–${state.matchWins[1]}`;
+  $("turnPill").textContent = (state.phase==="playing"||state.phase==="revealPause") ? `მოთამაშე ${state.turn+1}` : "—";
+  $("leaderPill").textContent = (state.phase==="playing"||state.phase==="revealPause") ? `მოთამაშე ${state.leader+1}` : "—";
+  $("needCountPill").textContent = state.needCount===0 ? "—" : `${state.needCount}`;
+
+  if(state.trump){
+    const sym = SUIT_SYMBOL[state.trump];
+    $("trMiniRank").textContent = "A";
+    $("trMiniSuit").textContent = sym;
+    $("trMiniMid").textContent = sym;
+    $("trumpMini").style.opacity = "1";
+  } else {
+    $("trumpMini").style.opacity = ".3";
+  }
+}
+
+function renderHands(){
+  $("p2Hand").innerHTML="";
+  for(let i=0;i<state.hands[1].length;i++){
+    $("p2Hand").append(cardEl({r:"",s:"Spades"},{faceUp:false}));
+  }
+
+  $("p1Hand").innerHTML="";
+  state.hands[0].forEach((c,idx)=>{
+    const selected = state.selectedIdxs.has(idx);
+    const selectable = (state.phase==="playing" && state.turn===0 && !state.lockInput && !state.pendingOffer);
+    $("p1Hand").append(cardEl(c,{
+      faceUp:true,
+      selectable,
+      selected,
+      trump: state.trump,
+      onClick: ()=>toggleSelect(idx)
+    }));
+  });
+
+  $("p1Meta").textContent = `ბარათები: ${state.hands[0].length}`;
+  $("p2Meta").textContent = `ბარათები: ${state.hands[1].length}`;
+}
+
+function renderPlays(){
+  $("p1Play").innerHTML="";
+  $("p2Play").innerHTML="";
+  for(const c of state.plays[0]) $("p1Play").append(cardEl(c,{faceUp:true,trump:state.trump}));
+  for(const c of state.plays[1]) $("p2Play").append(cardEl(c,{faceUp:true,trump:state.trump}));
+}
+
+function renderControls(){
+  const humanTurn = (state.phase==="playing" && state.turn===0 && !state.lockInput && !state.pendingOffer);
+  $("playBtn").disabled = !humanTurn;
+  $("clearBtn").disabled = !humanTurn;
+
+  let offerEnabled = (state.phase==="playing" && state.turn===0 && !state.lockInput && !state.pendingOffer);
+  if(state.nextRaisePlayer !== null && state.nextRaisePlayer !== 0) offerEnabled = false;
+  $("offerBtn").disabled = !offerEnabled;
+}
+
+function render(){
+  updateTopPills();
+  renderHands();
+  renderPlays();
+  renderControls();
+}
+
+/* ===== მონიშვნა ===== */
+function toggleSelect(idx){
+  if(!(state.phase==="playing" && state.turn===0) || state.lockInput || state.pendingOffer) return;
+  if(state.selectedIdxs.has(idx)) state.selectedIdxs.delete(idx);
+  else state.selectedIdxs.add(idx);
+  if(state.selectedIdxs.size > 5) state.selectedIdxs.delete(idx);
+  render();
+}
+function clearSelection(){
+  state.selectedIdxs.clear();
+  render();
+}
+
+function applyPlay(player, idxs){
+  idxs.sort((a,b)=>b-a).forEach(i=> state.hands[player].splice(i,1));
+  sortHand(state.hands[player], state.trump);
+}
+
+/* ===== Player 1 სვლა ===== */
+function humanPlaySelected(){
+  if(!(state.phase==="playing" && state.turn===0) || state.lockInput || state.pendingOffer) return;
+
+  const idxs=[...state.selectedIdxs].sort((a,b)=>a-b);
+  if(idxs.length===0) return;
+
+  const cards = idxs.map(i=>state.hands[0][i]);
+
+  if(state.needCount===0){
+    const cls = classifySameKind(cards);
+    if(!cls){
+      logLine("არასწორია: ლიდერმა უნდა დადოს ერთნაირი ტიპით (ერთი მასტი ან ერთი რანკი).");
+      return;
+    }
+    state.needCount = cards.length;
+    state.leader = 0;
+  } else {
+    if(cards.length !== state.needCount){
+      logLine(`უნდა დადოთ ზუსტად ${state.needCount} ბარათი.`);
+      return;
+    }
+  }
+
+  state.plays[0] = cards;
+  applyPlay(0, idxs);
+  state.selectedIdxs.clear();
+  logLine(`მოთამაშე 1-მა დადო ${cards.length} ბარათი.`);
+
+  nextTurn();
+}
+
+/* ===== AI სვლა ===== */
+function aiLeaderMove(){
+  const hand = state.hands[1];
+  const bySuit = new Map();
+  const byRank = new Map();
+  hand.forEach((c,idx)=>{
+    if(!bySuit.has(c.s)) bySuit.set(c.s,[]);
+    bySuit.get(c.s).push(idx);
+    if(!byRank.has(c.r)) byRank.set(c.r,[]);
+    byRank.get(c.r).push(idx);
+  });
+
+  const candidates = [];
+  for(const [s,arr] of bySuit.entries()){
+    for(let k=Math.min(5,arr.length); k>=1; k--){
+      candidates.push({idxs: arr.slice(0,k), score: (s===state.trump?100:0) + k*10});
+    }
+  }
+  for(const [r,arr] of byRank.entries()){
+    for(let k=Math.min(5,arr.length); k>=2; k--){
+      candidates.push({idxs: arr.slice(0,k), score: k*9});
+    }
+  }
+  if(candidates.length===0) candidates.push({idxs:[0], score:1});
+  candidates.sort((a,b)=>b.score-a.score);
+  return candidates[0].idxs;
+}
+function aiResponderMove(){
+  const hand = state.hands[1];
+  const need = state.needCount;
+  const idxs = hand.map((_,i)=>i);
+
+  idxs.sort((i,j)=>{
+    const a=hand[i], b=hand[j];
+    const ta = a.s===state.trump ? 1 : 0;
+    const tb = b.s===state.trump ? 1 : 0;
+    if(ta!==tb) return ta - tb; // არაკოზირი პირველ რიგში
+    return STRENGTH[a.r] - STRENGTH[b.r]; // დაბალი პირველ რიგში
+  });
+
+  return idxs.slice(0, Math.min(need, idxs.length));
+}
+
+function aiPlay(){
+  if(!(state.phase==="playing" && state.turn===1) || state.lockInput || state.pendingOffer) return;
+
+  maybeAiRaise();
+
+  let idxs;
+  if(state.needCount===0){
+    idxs = aiLeaderMove();
+    state.needCount = idxs.length;
+    state.leader = 1;
+  } else {
+    idxs = aiResponderMove();
+    if(idxs.length !== state.needCount){
+      idxs = state.hands[1].map((_,i)=>i).slice(0,state.needCount);
+    }
+  }
+
+  const cards = idxs.map(i=>state.hands[1][i]);
+  state.plays[1] = cards;
+  applyPlay(1, idxs);
+
+  logLine(`მოთამაშე 2-მა დადო ${cards.length} ბარათი. ჩანს 3 წამით…`);
+
+  state.lockInput = true;
+  state.phase = "revealPause";
+  $("statusPill").textContent = "მოთამაშე 2-ის ბარათები ჩანს…";
+  render();
+
+  setTimeout(()=>{
+    state.lockInput = false;
+    state.phase = "playing";
+    nextTurn(true);
+  }, 3000);
+}
+
+/* ===== ნაკადი ===== */
+function nextTurn(){
+  if(state.plays[0].length && state.plays[1].length){
+    resolveExchange();
+    return;
+  }
+  state.turn = 1 - state.turn;
+  $("statusPill").textContent = state.turn===0 ? "შენი სვლაა" : "მოთამაშე 2 ფიქრობს…";
+  render();
+
+  if(state.turn===1){
+    setTimeout(aiPlay, 500);
+  }
+}
+
+function resolveExchange(){
+  const winner = exchangeWinner();
+  const totalPts = pointsOfSet(state.plays[0]) + pointsOfSet(state.plays[1]);
+  state.gamePoints[winner] += totalPts;
+
+  logLine(`გაცვლის გამარჯვებულია: მოთამაშე ${winner+1} (+${totalPts}). ქულა: ${state.gamePoints[0]}–${state.gamePoints[1]}`);
+
+  state.leader = winner;
+  state.turn = winner;
+
+  resetExchange();
+  dealUpToFive(winner);
+
+  render();
+
+  if(checkGameEnd()) return;
+
+  $("statusPill").textContent = `შემდეგი გაცვლა. ლიდერი: მოთამაშე ${state.leader+1}`;
+  render();
+
+  if(state.turn===1){
+    setTimeout(aiPlay, 500);
+  }
+}
+
+function checkGameEnd(){
+  const p1 = state.gamePoints[0], p2 = state.gamePoints[1];
+
+  if(p1 === 60 && p2 === 60){
+    logLine("ფრე — 60–60. მატჩის ქულა არ დაემატება.");
+    endGameDraw();
+    return true;
+  }
+
+  if(p1 >= GAME_TARGET || p2 >= GAME_TARGET){
+    if(p1 === p2){
+      logLine("ფრე — 61+ თანაბარია (იშვიათი). მატჩის ქულა არ დაემატება.");
+      endGameDraw();
+      return true;
+    }
+    const winner = (p1 > p2) ? 0 : 1;
+    endGameWin(winner, "61+ ქულა");
+    return true;
+  }
+
+  if(state.deck.length === 0 && state.hands[0].length === 0 && state.hands[1].length === 0){
+    if(p1 === p2){
+      logLine("ფრე — გემბანი დამთავრდა და ქულა თანაბარია.");
+      endGameDraw();
+      return true;
+    }
+    const winner = (p1 > p2) ? 0 : 1;
+    endGameWin(winner, "გემბანი დამთავრდა");
+    return true;
+  }
+
+  return false;
+}
+
+function endGameDraw(){
+  state.phase = "resolve";
+  $("statusPill").textContent = "თამაში დასრულდა: ფრე (60–60)";
+  render();
+  setTimeout(startNewGame, 900);
+}
+
+function endGameWin(winner, reason){
+  state.phase = "resolve";
+  logLine(`თამაში დასრულდა — მოიგო მოთამაშე ${winner+1} (${reason}). საფასური: ${stakeText(state.stake)}.`);
+
+  if(state.stake === "WHOLE"){
+    state.matchWins[winner] = 11;
+  } else {
+    state.matchWins[winner] += state.stake; // 1..5
+  }
+  state.matchWins[winner] = Math.min(11, state.matchWins[winner]);
+
+  $("statusPill").textContent = `თამაში დასრულდა — მოიგო მოთამაშე ${winner+1}`;
+  render();
+
+  if(state.matchWins[winner] >= 11){
+    state.phase = "gameover";
+    $("statusPill").textContent = `მატჩი დასრულდა — მოიგო მოთამაშე ${winner+1} (${state.matchWins[0]}–${state.matchWins[1]})`;
+    render();
+    alert(`მატჩი დასრულდა\nმოიგო მოთამაშე ${winner+1}\nსაბოლოო: ${state.matchWins[0]}–${state.matchWins[1]}`);
+    return;
+  }
+
+  setTimeout(startNewGame, 900);
+}
+
+/* ===== ახალი თამაში (GAME) ===== */
+function startNewGame(){
+  state.gamePoints = [0,0];
+  state.stake = 1;
+  state.pendingOffer = null;
+  state.nextRaisePlayer = null;
+  state.lockInput = false;
+
+  state.trump = SUITS[Math.floor(Math.random()*SUITS.length)];
+  state.deck = buildDeck(); // 36
+  state.hands = [[],[]];
+
+  for(let i=0;i<5;i++){
+    state.hands[0].push(state.deck.pop());
+    state.hands[1].push(state.deck.pop());
+  }
+  sortHand(state.hands[0], state.trump);
+  sortHand(state.hands[1], state.trump);
+
+  resetExchange();
+  state.leader = 0;
+  state.turn = 0;
+  state.phase = "playing";
+
+  $("statusPill").textContent = "ახალი თამაში დაიწყო — შენი სვლაა";
+  logLine(`— ახალი თამაში. კოზირი: ${state.trump} ${SUIT_SYMBOL[state.trump]}. გემბანში დარჩა: ${state.deck.length} (უნდა იყოს 26).`);
+  render();
+
+  // Make sure on phone the bottom hand is visible immediately
+  const p1Zone = document.querySelector(".p1Zone");
+  if(p1Zone) p1Zone.scrollIntoView({block:"end", behavior:"smooth"});
+}
+
+/* ===== შეთავაზებები ===== */
+function openOfferModal(){
+  if(!(state.phase==="playing" && state.turn===0) || state.lockInput || state.pendingOffer) return;
+  if(state.nextRaisePlayer !== null && state.nextRaisePlayer !== 0){
+    logLine("ახლა ვერ ზრდი. შემდეგი ზრდა მხოლოდ მოთამაშე 2-ს შეუძლია.");
+    return;
+  }
+
+  const current = state.stake;
+  const options = RAISES.filter(x=>{
+    if(current==="WHOLE") return false;
+    if(x==="WHOLE") return true;
+    return x > current;
+  });
+  if(!options.length){
+    logLine("მაღალი შეთავაზება აღარ არის.");
+    return;
+  }
+  showOfferUI({mode:"make", options});
+}
+
+function showOfferUI({mode, options, incomingLevel}){
+  $("offerModal").style.display="flex";
+  $("offerButtons").innerHTML="";
+
+  if(mode==="make"){
+    $("offerTitle").textContent = "შეთავაზების გაკეთება";
+    $("offerText").textContent = "აირჩიე საფასური. თუ მოთამაშე 2 უარს იტყვის — თამაშს შენ იგებ ავტომატურად.";
+    for(const opt of options){
+      const b=document.createElement("button");
+      b.className="primary";
+      b.textContent = raiseLabel(opt);
+      b.onclick = ()=>{
+        $("offerModal").style.display="none";
+        makeOffer(0,1,opt);
+      };
+      $("offerButtons").append(b);
+    }
+  } else {
+    $("offerTitle").textContent = `მიღებულია შეთავაზება: ${raiseLabel(incomingLevel)}`;
+    $("offerText").textContent = "დათანხმდი რომ გაგრძელდეს. უარი = თამაშს აგებ ავტომატურად.";
+    const accept=document.createElement("button");
+    accept.className="primary";
+    accept.textContent="დათანხმება";
+    accept.onclick=()=>{
+      $("offerModal").style.display="none";
+      acceptOffer();
+    };
+    const refuse=document.createElement("button");
+    refuse.textContent="უარი";
+    refuse.onclick=()=>{
+      $("offerModal").style.display="none";
+      refuseOffer();
+    };
+    $("offerButtons").append(accept, refuse);
+  }
+}
+
+function makeOffer(from,to,level){
+  state.pendingOffer = {from,to,level};
+  logLine(`მოთამაშე ${from+1} სთავაზობს: ${raiseLabel(level)}.`);
+
+  state.nextRaisePlayer = to;
+  render();
+
+  setTimeout(()=>aiRespondToOffer(level), 450);
+}
+
+function acceptOffer(){
+  if(!state.pendingOffer) return;
+  state.stake = state.pendingOffer.level;
+  logLine(`შეთავაზება მიღებულია. ახალი საფასური: ${stakeText(state.stake)}.`);
+  state.pendingOffer = null;
+  render();
+}
+
+function refuseOffer(){
+  if(!state.pendingOffer) return;
+  const offerer = state.pendingOffer.from;
+  logLine(`შეთავაზებაზე უარი. მოიგო მოთამაშე ${offerer+1} ავტომატურად.`);
+  state.pendingOffer = null;
+  endGameWin(offerer, "შეთავაზებაზე უარი");
+}
+
+function aiRespondToOffer(level){
+  if(!state.pendingOffer) return;
+
+  const hand = state.hands[1];
+  const trumpCount = hand.filter(c=>c.s===state.trump).length;
+  const highCount = hand.filter(c=>["Ace","10","King","Queen","Jack"].includes(c.r)).length;
+
+  let acceptChance = 0.70;
+  if(level===2) acceptChance = 0.82;
+  if(level===3) acceptChance = 0.68;
+  if(level===4) acceptChance = 0.54;
+  if(level===5) acceptChance = 0.42;
+  if(level==="WHOLE"){
+    acceptChance = (trumpCount>=3 || (trumpCount>=2 && highCount>=3)) ? 0.55 : 0.12;
+  }
+
+  if(Math.random() < acceptChance){
+    state.stake = level;
+    logLine(`მოთამაშე 2 დათანხმდა: ${raiseLabel(level)}.`);
+    state.pendingOffer = null;
+    render();
+    return;
+  }
+
+  logLine(`მოთამაშე 2 უარს ამბობს: ${raiseLabel(level)}. შენ იგებ ავტომატურად.`);
+  state.pendingOffer = null;
+  endGameWin(0, "მოწინააღმდეგემ უარი თქვა");
+}
+
+function maybeAiRaise(){
+  if(state.pendingOffer) return;
+  if(state.nextRaisePlayer !== 1) return;
+  if(!(state.phase==="playing" && state.turn===1)) return;
+
+  const current = state.stake;
+  const options = RAISES.filter(x=>{
+    if(current==="WHOLE") return false;
+    if(x==="WHOLE") return true;
+    return x > current;
+  });
+  if(!options.length) return;
+
+  const hand = state.hands[1];
+  const trumpCount = hand.filter(c=>c.s===state.trump).length;
+  const behind = state.matchWins[1] < state.matchWins[0];
+
+  let desire = 0.08 + (behind ? 0.10 : 0) + (trumpCount>=3 ? 0.12 : 0);
+  if(Math.random() > desire) return;
+
+  const pick = options[0];
+  state.pendingOffer = {from:1,to:0,level:pick};
+  state.nextRaisePlayer = 0;
+  logLine(`მოთამაშე 2 სთავაზობს: ${raiseLabel(pick)}.`);
+  render();
+  showOfferUI({mode:"respond", incomingLevel:pick});
+}
+
+/* ===== ღილაკები ===== */
+$("new").addEventListener("click", ()=>{
+  state.matchWins=[0,0];
+  $("log").innerHTML="";
+  logLine("ახალი მატჩი დაიწყო. ვინც პირველი მოიგებს 11 თამაშს — იგებს მატჩს.");
+  startNewGame();
+});
+
+$("reset").addEventListener("click", ()=>{
+  Object.assign(state,{
+    matchWins:[0,0],
+    gamePoints:[0,0],
+    stake:1,
+    trump:null,
+    deck:[],
+    hands:[[],[]],
+    leader:0,
+    turn:0,
+    phase:"idle",
+    needCount:0,
+    plays:[[],[]],
+    selectedIdxs:new Set(),
+    pendingOffer:null,
+    nextRaisePlayer:null,
+    lockInput:false
+  });
+  $("log").innerHTML="";
+  $("statusPill").textContent="დააჭირე “ახალი მატჩი”";
+  render();
+});
+
+$("playBtn").addEventListener("click", humanPlaySelected);
+$("clearBtn").addEventListener("click", clearSelection);
+$("offerBtn").addEventListener("click", openOfferModal);
+$("offerClose").addEventListener("click", ()=> $("offerModal").style.display="none");
+
+/* ===== ინიციალიზაცია ===== */
+render();
+</script>
 </body>
-
 </html>
